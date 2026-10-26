@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suki Mini POS</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Sarabun", "Noto Sans Thai", Helvetica, Arial, sans-serif;
+      background-color: #ffffff;
+      color: #333333;
+      line-height: 1.5;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: #d32f2f;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: #666666;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 680px) {
+      .layout {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      color: #222222;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+
+    /* Menu Section */
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px solid #eeeeee;
+      border-radius: 6px;
+    }
+
+    .menu-info .menu-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .menu-info .menu-price {
+      color: #d32f2f;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .btn-add {
+      background-color: #2e7d32;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      touch-action: manipulation;
+    }
+
+    .btn-add:hover {
+      background-color: #1b5e20;
+    }
+
+    .btn-add:active {
+      transform: scale(0.98);
+    }
+
+    /* Cart Section */
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+
+    .cart-table th, 
+    .cart-table td {
+      padding: 8px;
+      text-align: left;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cart-table th {
+      color: #555555;
+      font-weight: 600;
+    }
+
+    .cart-table td.text-right,
+    .cart-table th.text-right {
+      text-align: right;
+    }
+
+    .cart-table td.text-center,
+    .cart-table th.text-center {
+      text-align: center;
+    }
+
+    .empty-cart-msg {
+      text-align: center;
+      color: #888888;
+      padding: 24px 0;
+      font-size: 0.95rem;
+    }
+
+    .total-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 2px solid #333333;
+      margin-top: 8px;
+      font-size: 1.15rem;
+      font-weight: bold;
+    }
+
+    .total-price {
+      color: #d32f2f;
+      font-size: 1.35rem;
+    }
+
+    .btn-clear {
+      width: 100%;
+      background-color: #d32f2f;
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 12px;
+      touch-action: manipulation;
+    }
+
+    .btn-clear:hover {
+      background-color: #b71c1c;
+    }
+
+    .btn-clear:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Suki Mini POS</h1>
+      <p>ระบบรับออร์เดอร์ร้านสุกี้</p>
+    </header>
+
+    <main class="layout">
+      <!-- ส่วนแสดงเมนูสินค้า (FR-01, FR-02) -->
+      <section class="card">
+        <h2>รายการเมนู</h2>
+        <div class="menu-list" id="menu-list">
+          <!-- เมนูจะถูก render จาก JavaScript -->
+        </div>
+      </section>
+
+      <!-- ส่วนแสดงตะกร้าสินค้าและยอดเงินรวม (FR-03, FR-04, FR-05) -->
+      <section class="card">
+        <h2>ตะกร้าสินค้า</h2>
+        
+        <div id="cart-content">
+          <table class="cart-table" id="cart-table" style="display: none;">
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th class="text-center">จำนวน</th>
+                <th class="text-right">ราคารวม</th>
+              </tr>
+            </thead>
+            <tbody id="cart-items">
+              <!-- รายการในตะกร้าจะถูก render ที่นี่ -->
+            </tbody>
+          </table>
+
+          <div id="empty-cart-msg" class="empty-cart-msg">
+            ยังไม่มีรายการสินค้าในตะกร้า
+          </div>
+        </div>
+
+        <div class="total-section">
+          <span>ยอดเงินรวม:</span>
+          <span class="total-price"><span id="total-amount">0</span> บาท</span>
+        </div>
+
+        <button type="button" class="btn-clear" id="btn-clear" onclick="clearCart()">
+          ล้างตะกร้า
+        </button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // รายการเมนูตาม requirement (FR-01)
+    const MENU_ITEMS = [
+      { id: 'pork', name: 'ชุดหมู', price: 199 },
+      { id: 'beef', name: 'ชุดเนื้อ', price: 249 },
+      { id: 'water', name: 'น้ำดื่ม', price: 20 }
+    ];
+
+    // ข้อมูลสินค้าในตะกร้า { itemId: { id, name, price, quantity } }
+    let cart = {};
+
+    // ฟังก์ชันเริ่มต้นสร้างหน้าจอเมนู
+    function renderMenu() {
+      const menuListElement = document.getElementById('menu-list');
+      menuListElement.innerHTML = '';
+
+      MENU_ITEMS.forEach(item => {
+        const itemElement = document.createElement('div');
+        itemElement.className = 'menu-item';
+        itemElement.innerHTML = `
+          <div class="menu-info">
+            <div class="menu-name">${item.name}</div>
+            <div class="menu-price">${item.price.toLocaleString()} บาท</div>
+          </div>
+          <button type="button" class="btn-add" onclick="addToCart('${item.id}')">
+            + เพิ่ม
+          </button>
+        `;
+        menuListElement.appendChild(itemElement);
+      });
+    }
+
+    // ฟังก์ชันเพิ่มสินค้าลงตะกร้า (FR-02)
+    function addToCart(itemId) {
+      const selectedItem = MENU_ITEMS.find(item => item.id === itemId);
+      if (!selectedItem) return;
+
+      if (cart[itemId]) {
+        cart[itemId].quantity += 1;
+      } else {
+        cart[itemId] = {
+          id: selectedItem.id,
+          name: selectedItem.name,
+          price: selectedItem.price,
+          quantity: 1
+        };
+      }
+
+      renderCart();
+    }
+
+    // ฟังก์ชันแสดงรายการในตะกร้าและคำนวณราคารวม (FR-03, FR-04)
+    function renderCart() {
+      const cartItemsElement = document.getElementById('cart-items');
+      const cartTableElement = document.getElementById('cart-table');
+      const emptyCartMsgElement = document.getElementById('empty-cart-msg');
+      const totalAmountElement = document.getElementById('total-amount');
+
+      const cartEntries = Object.values(cart);
+
+      if (cartEntries.length === 0) {
+        cartTableElement.style.display = 'none';
+        emptyCartMsgElement.style.display = 'block';
+        totalAmountElement.textContent = '0';
+        return;
+      }
+
+      cartTableElement.style.display = 'table';
+      emptyCartMsgElement.style.display = 'none';
+      cartItemsElement.innerHTML = '';
+
+      let total = 0;
+
+      cartEntries.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td class="text-center">${item.quantity}</td>
+          <td class="text-right">${itemTotal.toLocaleString()} บาท</td>
+        `;
+        cartItemsElement.appendChild(row);
+      });
+
+      totalAmountElement.textContent = total.toLocaleString();
+    }
+
+    // ฟังก์ชันล้างรายการสินค้าในตะกร้า (FR-05)
+    function clearCart() {
+      cart = {};
+      renderCart();
+    }
+
+    // เริ่มต้นแสดงผลหน้าเว็บ
+    window.addEventListener('DOMContentLoaded', () => {
+      renderMenu();
+      renderCart();
+    });
+  </script>
+</body>
+</html>
+
